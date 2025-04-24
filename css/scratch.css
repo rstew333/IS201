@@ -1,0 +1,91 @@
+.common{
+    text-align: center;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    background-color: darkgray;
+}
+
+.header{
+    height: 100px;
+    background-color: beige;
+    color: black;
+    line-height: 100px;
+    font-weight: bolder;
+    font-size: x-large;
+}
+
+.myList{
+    text-align: center;
+}
+
+.myListItems{
+display: inline-block;
+text-align: left;
+margin-left: -20px;
+}
+
+img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 25%;
+}
+
+nav{
+    padding: 10px;
+    overflow: hidden;
+}
+
+nav a:hover{
+    background-color: aliceblue;
+}
+
+nav a {
+    float: left;
+    color: black;
+    padding: 10px 13px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.video {
+    text-align: center;
+    margin-top: 30px;
+  }
+  
+  .video iframe {
+    width: 80%;
+    max-width: 600px;
+    height: 315px;
+    border-radius: 10px;
+  }
+  
+  .tableau {
+    text-align: center;
+    margin-top: 30px;
+  }
+  
+  .tableau iframe {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 1000px;
+    height: 600px;
+  }
+
+  .tableau-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    margin: 40px 0 40px auto;
+    margin: 40px auto;
+    overflow-x: hidden;
+  }
+  
+  .tableau-wrapper object {
+    width: 100% !important;
+    height: 600px !important;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wordle Clone</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: white;
+      color: black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+      margin-top: 60px; /* space for the nav bar */
+    }
+
+    h1 {
+      color: #222;
+    }
+
+    nav {
+      padding: 10px;
+      overflow: hidden;
+      width: 100%;
+      background-color: #f2f2f2;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    nav a {
+      float: left;
+      color: black;
+      padding: 10px 13px;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      background-color: aliceblue;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(5, 60px);
+      grid-gap: 10px;
+      margin: 20px 0;
+    }
+
+    .tile {
+      width: 60px;
+      height: 60px;
+      background-color: #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .correct {
+      background-color: #6aaa64;
+      color: white;
+    }
+
+    .present {
+      background-color: #c9b458;
+      color: white;
+    }
+
+    .absent {
+      background-color: #787c7e;
+      color: white;
+    }
+
+    input {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 16px;
+      width: 200px;
+      text-align: center;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #538d4e;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    #message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    #keyboard {
+      margin-top: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 500px;
+      justify-content: center;
+    }
+
+    .key {
+      width: 35px;
+      height: 45px;
+      margin: 3px;
+      background-color: #eee;
+      border: none;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: default;
+      text-transform: uppercase;
+    }
+
+    .key.correct { background-color: #6aaa64; color: white; }
+    .key.present { background-color: #c9b458; color: white; }
+    .key.absent { background-color: #787c7e; color: white; }
+
+    /* ✅ Updated hint button position */
+    #hint-container {
+      position: fixed;
+      top: 70px; /* moved down below the nav bar */
+      right: 20px;
+      text-align: right;
+      z-index: 1100;
+    }
+
+    #hint-btn {
+      padding: 8px 14px;
+      background-color: #ffcc00;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #hint-msg {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #333;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ NAVIGATION BAR -->
+  <nav>
+    <a href="../scratch.html">Scratch Page</a>
+  </nav>
+
+  <!-- ✅ HINT BUTTON -->
+  <div id="hint-container">
+    <button id="hint-btn" onclick="showHint()">Hint</button>
+    <div id="hint-msg"></div>
+  </div>
+
+  <h1>Wordle Clone</h1>
+  <div id="board"></div>
+  <input type="text" id="guess" maxlength="5" placeholder="Type guess..." />
+  <button onclick="submitGuess()">Submit</button>
+  <div id="message"></div>
+  <div id="keyboard"></div>
+
+  <script>
+    const secretWord = "APPLE";
+    let attempts = 0;
+    const maxAttempts = 6;
+
+    const keyboard = {};
+    const keyboardContainer = document.getElementById("keyboard");
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    // Create keyboard
+    for (let char of letters) {
+      const key = document.createElement("button");
+      key.className = "key";
+      key.id = "key-" + char;
+      key.textContent = char;
+      keyboard[char] = key;
+      keyboardContainer.appendChild(key);
+    }
+
+    function submitGuess() {
+      const input = document.getElementById("guess");
+      const guess = input.value.toUpperCase();
+      if (guess.length !== 5) {
+        showMessage("Guess must be 5 letters!");
+        return;
+      }
+
+      if (attempts >= maxAttempts) {
+        showMessage("Out of attempts! Refresh to try again.");
+        return;
+      }
+
+      for (let i = 0; i < 5; i++) {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.textContent = guess[i];
+
+        const keyButton = keyboard[guess[i]];
+        if (guess[i] === secretWord[i]) {
+          tile.classList.add("correct");
+          keyButton.className = "key correct";
+        } else if (secretWord.includes(guess[i])) {
+          tile.classList.add("present");
+          if (!keyButton.classList.contains("correct")) {
+            keyButton.className = "key present";
+          }
+        } else {
+          tile.classList.add("absent");
+          if (!keyButton.classList.contains("correct") && !keyButton.classList.contains("present")) {
+            keyButton.className = "key absent";
+          }
+        }
+
+        document.getElementById("board").appendChild(tile);
+      }
+
+      attempts++;
+      input.value = "";
+
+      if (guess === secretWord) {
+        showMessage("🎉 You guessed it!");
+        launchConfetti();
+      } else if (attempts === maxAttempts) {
+        showMessage(`❌ Game over! The word was ${secretWord}.`);
+      }
+    }
+
+    function showMessage(msg) {
+      document.getElementById("message").textContent = msg;
+    }
+
+    function showHint() {
+      const hintBox = document.getElementById("hint-msg");
+      const randomIndex = Math.floor(Math.random() * secretWord.length);
+      const letter = secretWord[randomIndex];
+      hintBox.textContent = `Hint: The letter "${letter}" is in the word.`;
+      document.getElementById("hint-btn").disabled = true;
+    }
+
+    function launchConfetti() {
+      confetti({
+        particleCount: 200,
+        spread: 90,
+        origin: { y: 0.2 }
+      });
+    }
+  </script>
+
+  <!-- ✅ Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</body>
+</html>
